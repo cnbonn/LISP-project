@@ -5,7 +5,7 @@
 
 
 ;-------------------------------------------------
-
+(load "statefunctions")
 
 ; global variables
 (defvar *mis*)     ;number of missionaries on left side
