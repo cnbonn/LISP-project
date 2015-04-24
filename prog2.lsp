@@ -4,7 +4,7 @@
 ; global variables
 (defvar *mis*)     ;number of missionaries on left side
 (defvar *can*)     ;number of cannables on left side
-(defvar *boat*)    ;side that the canoe is on
+(defvar *boat* 2)    ;number of people that are allowed on the boat
 
 
 
@@ -82,9 +82,27 @@
 
 ;-----------------------------------------------
 ;goal state ( all missionaires and cannables on right side)
-(defun goal-state? (state) '( 0 0 *mis* *can* R)
-  ;set goal state ( M C R )
- ;(and (and (= (car state *mis*))(=(cadr state *can*)))(= (caddr state 'R)))
+(defun goal-state? (state) 
+  ;set goal state ( Ml Cl MR CR R )
+  (and
+    (and
+      (and (=(first state) '0) (=(second state) '0)) ; no persons on left
+      (and (=(third state) *mis*) (=(fourth state) *can*)) ; all persons on right
+    )
+    (and (string=(fifth state) 'R)) ; check for boat on right side
+  )
+)
+
+
+;------------------------------------------------
+;check to make sure cannabilism does not occur
+(defun cannabilism (state)
+  "check to make sure cannabilism does not occur"
+  (cond
+    ((< (first state) (second state) nil); more canables then missionaries on left side
+    ((< (third state) (fourth state) nil) ; more cannables then missionaries on right side
+    (t state) ; return state if true
+  )
 )
 
 ;------------------------------------------------
