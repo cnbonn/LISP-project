@@ -39,11 +39,11 @@
 (defun m-c (ml cl)
    
   ;initilize global varables
-  (setq *mis* ml) ;missionaries left
-  (setq *can* cl) ;cannables left
-  (setq mr '0) ; missionaries right
-  (setq cr '0) ; cannables right
-  (setq s "l") ; boat to left size
+  (setf *mis* ml) ;missionaries left
+  (setf *can* cl) ;cannables left
+  (setf mr '0) ; missionaries right
+  (setf cr '0) ; cannables right
+  (setf s "l") ; boat to left size
   (defparameter *t* (string ""))
 
   ;check to see if there are more c then m at start
@@ -109,6 +109,8 @@
 (defun dfs (state)
   "(dfs m c s): depth first search for MCP"
   ;check to see if current state is the goal state
+  (cond ( = (goal-state?(state)) t) sucess)
+
   ;move one missionarie and one cannable
   ;move two missionaires
   ;move one missionarie
@@ -118,7 +120,14 @@
   (return-from dfs nil) ; return nil if not found
 )
   
-   
+;-------------------------------------------------
+(defun move1m1c (state)
+  "move 1 missionary and 1 canable"
+  (cond
+    ((string= (fifth state) 'R) )
+    ((string= (fifth state) 'L) )
+  ) 
+)   
 
 ;-------------------------------------------------
 ;run Missionaries and canables uponloading file
