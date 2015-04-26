@@ -1,37 +1,107 @@
 
 
+; global variables
+(defvar *mis*)     ;number of missionaries on left side
+(defvar *can*)     ;number of cannables on left side
+(defvar *boat* 2)    ;number of people that are allowed on the boat
+
 ;Check for valid state
-(defun valid-state (m c b max-m max-c)
+(defun valid-state (state)
   (cond
-    ((and (= m max-m) (= c max-c) (equal b 'L)) nil);All people on right but boat on left: invalid
-    ((and (= m 0) (= c 0) (equal b 'R)) nil);All people on left but boar on right: invalid 
-    ((or (> m max-m) (> c max-c)) nil);Missionary or canibal totals greater than max: invalid
-    ((or (< m 0) (< c 0)) nil);Missionaries or canibals less than 0: invalid
-    ((= m max-c) t); Number of missionaries = to max of cannibals: valid
-    ((= m 0) t); All missionaries on the right side: valid
-    ( (and (>= m c) 
-           (>= (- max-m m) (- max-c c)) 
+    ((and (= (mis state) *mis*) (= (can state) *can*) (equal (side state) 'L)) nil)
+    ;All people on right but boat on left: invalid
+    ((and (= (mis state) 0) (= (can state) 0) (equal (side state) 'R)) nil)
+    ;All people on left but boar on right: invalid 
+    ((or (> (mis state) *mis*) (> (can state) *can*)) nil)
+    ;Missionary or canibal totals greater than max: invalid
+    ((or (< (mis state) 0) (< (can state) 0)) nil);Missionaries or canibals less than 0: invalid
+    ((= (mis state) *can*) t); Number of missionaries = to max of cannibals: valid
+    ((= (mis state) 0) t); All missionaries on the right side: valid
+    ( (and (>= (mis state) (can state)) 
+           (>= (- *mis* (mis state)) (- *can* (can state))) 
            ) t) ;There is more missionaries on both sides: valid
     (t nil);All other states: invalid
   )
 )
 
+(defun mis (state)
+  (first state)
+)
+(defun can (state)
+  (second state)
+)
+(defun side (state)
+  (third state)
+)
+
 ;See if a state is already in the state list
-(defun used-state (m c b state-list)
+(defun used-state (state state-list)
   (cond
     ((NULL state-list) nil)
-    ( (or (equal (list m c b) (car state-list) ); If the first item in the list is equal return true 
-          (used-state m c b (cdr state-list))
+    ( (or (equal (state) (car state-list) ); If the first item in the list is equal return true 
+          (used-state state (cdr state-list))
       )   ; Or see if its true for the rest of the list
     t)
   )
 )
 
-(defun add-state? (m c b state-list max-m max-c)
-  (and (valid-state m c b max-m max-c) (not (used-state m c b state-list)))
+(defun add-state (state state-list)
+  (and (valid-state state) (not (used-state m c state state-list)))
 )
 
+(defun win-state( state )
+  (and (= *mis* (mis state)) (= *can* (can state)) (equal (side state) 'R))
+)
+
+(defun mv2c  (state)
+  (cond
+    ((equal (side state) 'L) (list (mis state) (+ 2 (can state)) 'R))
+    ((equal (side state) '2) (list (mis state) (- 2 (can state)) 'L))
+  )
+)
+
+(defun mv2m (state)
+  (cond
+    ((equal (side state) 'L) (list (+ 2 (mis state)) (can state) 'R))
+    ((equal (side state) '2) (list (- 2 (mis state)) (can state) 'L))
+  )
+)
+
+(defun mv1m1c (state)
+  (cond
+    ((equal (side state) 'L) (list (+ 1 (mis state)) (+ 1 (can state)) 'R))
+    ((equal (side state) '2) (list (- 1 (mis state)) (- 1 (can state)) 'L))
+  )
+)
+
+(defun mv1c  (state)
+  (cond
+    ((equal (side state) 'L) (list (mis state) (+ 1 (can state)) 'R))
+    ((equal (side state) '2) (list (mis state) (- 1 (can state)) 'L))
+  )
+)
+
+(defun mv2m (state)
+  (cond
+    ((equal (side state) 'L) (list (+ 1 (mis state)) (can state) 'R))
+    ((equal (side state) '2) (list (- 1 (mis state)) (can state) 'L))
+  )
+)
 ;Pushes the new state on to the list to pass recursively without affecting the list used on this level
-(defun pass-list (m c b curr-list)
-  (cons (list m c b) curr-list)
+(defun pass-list (new curr-list)
+  (cons new curr-list)
+)
+
+(defun dfs (state-list)
+  (let (  (rlist 0) (try 0) (state (car state-list))  )
+    (cond
+      ((win-state state) state-list)
+      ((and (setf try (mv1m1c state)) (add-state try state-list) (setf rlist (dfs (pass-list try state-list)))) rlist )
+      ((and (setf try (mv2m   state)) (add-state try state-list) (setf rlist (dfs (pass-list try state-list)))) rlist )
+      ((and (setf try (mv1m   state)) (add-state try state-list) (setf rlist (dfs (pass-list try state-list)))) rlist )
+      ((and (setf try (mv2c   state)) (add-state try state-list) (setf rlist (dfs (pass-list try state-list)))) rlist )
+      ((and (setf try (mv1c   state)) (add-state try state-list) (setf rlist (dfs (pass-list try state-list)))) rlist )
+      (t nil)
+    )
+  )
 )
