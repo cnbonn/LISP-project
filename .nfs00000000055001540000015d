@@ -123,7 +123,7 @@
   ;return-from mcdfs nil)
 
   ;check to see if current state is the goal state
-  (if (= (goal-state?(state)) t) state)
+  (cond (= (goal-state?(state)) t) state)
   ;move one missionarie and one cannable
   ;dfs(move1m1c(state))
 
