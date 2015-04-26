@@ -1,3 +1,9 @@
+(defun start
+  (setf n 10)
+  test(n)
+)
+
+
 (defun test (n)
   (cond (= (n '10) return n)
 
