@@ -1,3 +1,11 @@
+;Missionaries and cannables
+;
+;By Charles Bonn and Marcus Habberling
+;CSC461
+;
+;This program solves the Missionary and Cannables
+;problem using recurrsive lisp functions.
+
 ;-------------------------------------------------
 (load "statefunctions")
 
@@ -50,9 +58,8 @@
 (defun m-c (m c)
    "(m-c m c) function call for MC "
   ;initilize global varables
-  (setf *mis* m) ;missionaries left
-  (setf *can* c) ;cannables left
-  (setf s "l") ; boat to left size
+  (setf *mis* m) ; missionaries
+  (setf *can* c) ; cannables
   (defparameter *t* (string ""))
 
   ;check to see if there are more c then m at start
@@ -68,22 +75,39 @@
   (format t "~%~%~A Missionaries and ~A Cannibals:~%~%" m c)
   (format t "left bank      right bank      canoe      last move~%")
   (format t "---------      ----------      -----      ---------~%")
-  (format t " ~A M, ~A C      ~A M, ~A C        left       start state ~%"
-   m c '0 '0  )
+  
+  (setf state (reverse(dfs(start-state)))) ; get and reverse states
+  ;no solutions
+ 
+  (cond ((= (length state) 0) (return-from m-c "NO SOLUTIONS") ))
+  ;previous values
+  (setf mp 0)
+  (setf cp 0)
+  (loop for x in state
+     do     
+     (setf m (car x))
+     (setf c (car(cdr x)))
+     (setf s (car (cddr x))); (cddr x))
+     (cond
+        ;start states
+       ((and(= m 0) (= c 0)) (setf *t* (string "Start state"))(setf p "left "))
+       ;boat move from left to right
+       ((string= s "R") (setf *t* (string "left to right"))(setf p "right"))
+       ;boat move from right to left 
+       ((string= s "L") (setf *t* (string "right to left"))(setf p "left "))
+     ) 
+     ; output format string
+      (format t " ~A M, ~A C      ~A M, ~A C        ~A      move ~A M, ~A C ~A ~%"
+             (- *mis* m) (- *can* c) m c p (abs  (- mp m) )
+             (abs (- cp c)) *t*)
+   
 
- (cond
-     ;boat move from left to right
-     ((string= s "r") (setf *t* (string "left to right"))(setf p "right"))
-     ;boat move from right to left 
-     ((string= s "l") (setf *t* (string "right to left"))(setf p "left "))
+    (setf mp m)
+    (setf cp c)
   )
-  ;(format t " ~A M, ~A C      ~A M, ~A C        ~A      move ~A M, ~A C ~A ~%"
-  (format t " ~A~%"
-  (dfs(start-state)) *t* )
   ;suppress printing NIL unpon return to interperter
   (values)  
 )
-
 ;-------------------------------------------------
 ;run Missionaries and canables uponloading file
 (main)
